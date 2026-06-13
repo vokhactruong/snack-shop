@@ -87,24 +87,36 @@ export default function AdminPage() {
     }
   }
 
+  const DEFAULT_IMAGE =
+  'https://res.cloudinary.com/dwsenlr3e/image/upload/v1781184723/numcni08x4jcyaqmcgjp.jpg';
+
   async function handleSave() {
-    if (!form.name || !form.price) return toast.error('Nhập tên và giá');
-    try {
-      const payload = { ...form, price: parseInt(form.price, 10) };
-      if (editing) {
-        const updated = await updateMenuItem(editing, payload);
-        setItems((prev) => prev.map((i) => (i._id === editing ? updated : i)));
-        toast.success('Đã cập nhật món');
-      } else {
-        const created = await createMenuItem(payload);
-        setItems((prev) => [...prev, created]);
-        toast.success('Đã thêm món mới');
-      }
-      setShowForm(false);
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Lỗi lưu món');
-    }
+  if (!form.name || !form.price) {
+    return toast.error('Nhập tên và giá');
   }
+
+  try {
+    const payload = {
+      ...form,
+      image: form.image || DEFAULT_IMAGE, // nếu không upload ảnh
+      price: parseInt(form.price, 10),
+    };
+
+    if (editing) {
+      const updated = await updateMenuItem(editing, payload);
+      setItems((prev) => prev.map((i) => (i._id === editing ? updated : i)));
+      toast.success('Đã cập nhật món');
+    } else {
+      const created = await createMenuItem(payload);
+      setItems((prev) => [...prev, created]);
+      toast.success('Đã thêm món mới');
+    }
+
+    setShowForm(false);
+  } catch (err) {
+    toast.error(err.response?.data?.message || 'Lỗi lưu món');
+  }
+}
 
   async function handleDelete(id) {
     if (!confirm('Xóa món này?')) return;
